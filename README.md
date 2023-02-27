@@ -85,6 +85,8 @@ Sample distance to detector does not appear to be critical beyond altering the d
 At each position a calibrant should also be measured, CeO2 is used in the examples. A black mark will appear in the glass slides at the beam position, this does not appear to effect the measurement.
 
 # Obtaining GSAS-II calibration maps
+PyFAI can be used alternatively with the 'Save maps pyfai' notebook. Create the ponis with pyFAI-calib(2), input the detector in the notebook where it shows (or use the shape of a measured image).
+
 [GSAS-II](https://subversion.xray.aps.anl.gov/trac/pyGSAS) is used to generate a map of detector pixels to 2-θ positions and a polarization correction. Other software may be used instead if desired, such as pyFAI, though some work will likely need to be done to ensure the output matches the expected input of the gain correction software.
 
 Installation instructions for GSAS-II may be found on the [linked](https://subversion.xray.aps.anl.gov/trac/pyGSAS) page. 
