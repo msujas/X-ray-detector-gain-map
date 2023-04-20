@@ -15,7 +15,7 @@ def updatelist(ext):			# search for tif files in the main directory
 
 
 if __name__ == "__main__":
-    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\March2023_gainMap/') #input working directory
+    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\a311189_pdf\gainCorrection/') #input working directory
     
     cwd = os.getcwd()				# get the current path
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     geometry = pyFAI.geometry.Geometry(detector = 'pilatus2mcdte') #input detector geometry, or put in shape if unavailable
     #geometry = pyFAI.geometry.Geometry(detector = shape)
     if not ponifiles:
-        raise runTimeError("need at least one poni in the folder!")
+        raise RuntimeError("need at least one poni in the folder!")
     else:
         for file in ponifiles:
             geometry.load(file)
@@ -50,5 +50,10 @@ if __name__ == "__main__":
             polimage = fabio.edfimage.EdfImage(polmap)
             polfname = f'{path}/{name}_polmap.edf'
             polimage.save(polfname)
+            chimap = geometry.chiArray()*180/np.pi
+            chiimage = fabio.edfimage.EdfImage(chimap)
+            chiname = f'{path}/{name}_azim.edf'
+            chiimage.save(chiname)
             print(tthfname)
             print(polfname)
+            print(chiname)
