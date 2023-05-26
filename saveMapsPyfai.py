@@ -1,7 +1,5 @@
-# The script is to save 2-theta map, Azm map, pixel distance map, and polarization scale map using GSAS-II scriptable.
-# Use python installed with GSAS-II to execute the script.  Best way: use run_savemaps.bat (edit paths inside)
-# An image and an *.imctrl file have to be present in the directory containing this script and the bat file.
-# C:\Users\17bmuser\AppData\Local\Continuum\gsas2full\python.exe
+# The script is to save 2-theta map, Azm map, pixel distance map, and polarization scale map using pyFAI
+#requires poni files made with pyfai-calib(2)
 
 import os
 from glob import glob
@@ -15,7 +13,7 @@ def updatelist(ext):			# search for tif files in the main directory
 
 
 if __name__ == "__main__":
-    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\a311189_pdf\gainCorrection/') #input working directory
+    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\May2023/') #input working directory
     
     cwd = os.getcwd()				# get the current path
 
@@ -34,7 +32,7 @@ if __name__ == "__main__":
         cbf = fabio.open(cbfs[0]).data
         shape = cbf.shape
         
-    geometry = pyFAI.geometry.Geometry(detector = 'pilatus2mcdte') #input detector geometry, or put in shape if unavailable
+    geometry = pyFAI.geometry.Geometry() #detector should be in poni, specify if needed
     #geometry = pyFAI.geometry.Geometry(detector = shape)
     if not ponifiles:
         raise RuntimeError("need at least one poni in the folder!")
@@ -42,7 +40,8 @@ if __name__ == "__main__":
         for file in ponifiles:
             geometry.load(file)
             twothetaMap = geometry.twoThetaArray()*180/np.pi
-            polmap = geometry.polarization(factor = polarisation) 
+            polmap = geometry.polarization(factor = polarisation)
+            solidAngleMap = geometry.solidAngleArray()
             ttm_image = fabio.edfimage.EdfImage(twothetaMap)
             name = file.replace('.poni','')
             tthfname = f'{path}/{name}_2thmap.edf'
@@ -54,6 +53,10 @@ if __name__ == "__main__":
             chiimage = fabio.edfimage.EdfImage(chimap)
             chiname = f'{path}/{name}_azim.edf'
             chiimage.save(chiname)
+            solidangleimage = fabio.edfimage.EdfImage(solidAngleMap)
+            solidanglename = f'{path}/{name}_solidAngle.edf'
+            solidangleimage.save(solidanglename)
             print(tthfname)
             print(polfname)
             print(chiname)
+            print(solidanglename)
