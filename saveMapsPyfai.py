@@ -5,6 +5,7 @@ import os
 from glob import glob
 import fabio
 import pyFAI.geometry
+import pyFAI
 import numpy as np
 def updatelist(ext):			# search for tif files in the main directory
     filelist=glob(ext)
@@ -13,8 +14,9 @@ def updatelist(ext):			# search for tif files in the main directory
 
 
 if __name__ == "__main__":
-    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\May2023/') #input working directory
-    
+    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\a311207_gainMapDec2023/') #input working directory
+    defaultDetector = pyFAI.detector_factory('pilatus2mcdte')
+    cbfsubdir = 'Si'
     cwd = os.getcwd()				# get the current path
 
     PathWrap = lambda fil: os.path.join(cwd,fil)
@@ -26,19 +28,26 @@ if __name__ == "__main__":
     if not os.path.exists(path):			
         os.mkdir(path)
     pathmaps = path
-    cbfs = updatelist('*.cbf')
+    cbfs = updatelist(f'{cbfsubdir}/*.cbf')
     ponifiles = updatelist('*.poni')
     if cbfs:
         cbf = fabio.open(cbfs[0]).data
         shape = cbf.shape
-        
+    
     geometry = pyFAI.geometry.Geometry() #detector should be in poni, specify if needed
+    
+    
     #geometry = pyFAI.geometry.Geometry(detector = shape)
     if not ponifiles:
         raise RuntimeError("need at least one poni in the folder!")
     else:
         for file in ponifiles:
+            
             geometry.load(file)
+            if not geometry.detector.shape:
+                geometry.detector = defaultDetector
+                print(f'assigning detector to {file}')
+
             twothetaMap = geometry.twoThetaArray()*180/np.pi
             polmap = geometry.polarization(factor = polarisation)
             solidAngleMap = geometry.solidAngleArray()
@@ -60,3 +69,4 @@ if __name__ == "__main__":
             print(polfname)
             print(chiname)
             print(solidanglename)
+
