@@ -21,12 +21,15 @@ mapdir = r'maps/'
 tthetamapfiles = glob(f'./{mapdir}/*_2thmap.edf')
 polmapfiles = glob(f'./{mapdir}/*_polmap.edf')
 SAmapfiles = glob(f'./{mapdir}/*_solidAngle.edf')
+tthetamapfiles.sort()
+polmapfiles.sort()
+SAmapfiles.sort()
 solidAngleCorrection = True
 avdir = 'average'
 start, stop =46,48 # straight section at end of data for extrapolating values
 filenamescbf = {}
 subdirs = glob(f'{cbfdir}/pos*/')
-
+subdirs.sort()
 for c,subdir in enumerate(subdirs,1):
     if not os.path.isdir(subdir):
         continue
