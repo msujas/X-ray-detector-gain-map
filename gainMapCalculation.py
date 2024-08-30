@@ -10,19 +10,20 @@ from scipy.interpolate import interp1d
 from scipy.signal import medfilt
 from scipy.ndimage import median_filter
 import os,fabio, re, math
+from pprint import pprint
 
 # Import files from each position
-direc = r'C:\Users\kenneth1a\Documents\beamlineData\a311207_gainMapDec2023'
+direc = r'Z:\visitor\ch6987\bm31\20240326\pylatus\gainmap'
 #direc = r'C:\Users\kenneth1a\Documents\beamlineData\Feb2023_gainMap'
 os.chdir(direc)
 cbfdir = 'glassRod'
-mapdir = r'Si/maps/'
+mapdir = r'maps/'
 tthetamapfiles = glob(f'./{mapdir}/*_2thmap.edf')
 polmapfiles = glob(f'./{mapdir}/*_polmap.edf')
 SAmapfiles = glob(f'./{mapdir}/*_solidAngle.edf')
 solidAngleCorrection = True
 avdir = 'average'
-start, stop =55,57 # straight section at end of data for extrapolating values
+start, stop =46,48 # straight section at end of data for extrapolating values
 filenamescbf = {}
 subdirs = glob(f'{cbfdir}/pos*/')
 
@@ -77,8 +78,9 @@ for key in filenamescbf:
         masked = np.divide(masked,SAmaps[key])
     dataMasked[key] = masked
 
-print(filenamescbf)
-print(polmapfiles)
+pprint(filenamescbf)
+pprint(polmapfiles)
+pprint(tthetamapfiles)
 
 def bin_map(tmap, nbins):
     """
@@ -257,7 +259,7 @@ def map_correction(gainmap, window_size):
     filtered = filtered*mask # Set damaged pixels to zeros 
     return filtered+damap # Add back in gains for damaged pixels
 
-fig, ax = plt.subplots(len(data),4, figsize = (4.8*4,6.4*len(data)))
+fig, ax = plt.subplots(len(data),4, figsize = (2.2*4,2.4*len(data)))
 for i in data:
     ax[i-1][0].imshow(data[i])
     ax[i-1][1].imshow(tmaps[i])
@@ -293,7 +295,7 @@ maps = gain_map_all_pos(dataMasked, tmaps, start, stop, bins)
 
 columns = 3
 rows = int(2*math.ceil(len(data)/columns))
-fig,ax = plt.subplots(rows,columns, dpi = 150, figsize = (4.8*columns, 6.4*rows))
+fig,ax = plt.subplots(rows,columns, dpi = 150, figsize = (2.2*columns, 2.4*rows))
 #plt.rcParams["figure.figsize"] = (15, 20)
 k = np.percentile(np.where(np.isnan(y[1]),-2,y[1]), 99) # Scale images to 99th percentile of 1D integration
 usedAxes = np.empty(shape = (rows,columns))
@@ -325,7 +327,7 @@ plt.title('median gain map')
 plt.tight_layout()
 plt.show()
 # Export calculated gain map
-gainmapfilename = 'calculatedGainMap'
+gainmapfilename = 'gainMap'
 # Define gain map format
 g_form = 1 # Set to 1 if the gain map is to be divided by measured images, 0 if it is to be multiplied (GSAS wants multiply)
 dtstring = datetime.today().strftime('%Y-%m-%d')
@@ -342,11 +344,11 @@ else:
 
 # Export map as 32 bit tif
 im = Image.fromarray(np.float32(nmap), mode='F') # float32
-im.save(gainmapfilename+'_'+dtstring+'.tif', 'TIFF')
+#im.save(gainmapfilename+'_'+dtstring+'.tif', 'TIFF')
 
 ## Used for detector diagnostics ##
 # Export calculated gain map without median filter applied
-gainmapfilename = 'calculatedGainMap_48p6keV'
+gainmapfilename = 'gainMap'
 # Define gain map format
 g_form = 1 # Set to 1 if the gain map is to be divided by measured images, 0 if it is to be multiplied (GSAS wants multiply)
 
@@ -365,7 +367,7 @@ nmap[nmap<-10**10] = -1
 im = Image.fromarray(np.float32(nmap), mode='F') # float32
 gainmapfilenameUnfiltered = gainmapfilename+'_unfiltered_'+dtstring+'.tif'
 edfUnfilteredName = gainmapfilenameUnfiltered.replace('.tif','.edf')
-im.save(gainmapfilenameUnfiltered, 'TIFF')
+#im.save(gainmapfilenameUnfiltered, 'TIFF')
 
 edfimage = fabio.edfimage.EdfImage(data = nmap)
 edfimage.save(edfUnfilteredName)
@@ -382,10 +384,10 @@ gsas_format[gsas_format>2000] = 0 # Any pixel that needs more than a 200% correc
 im = Image.fromarray(gsas_format.astype('I'), mode = 'I')
 # Export calculated gain map
 
-gainmapfilename = 'calculatedGainMap_48p6keV_gsasformat'
+gainmapfilename = 'gainMap_gsasformat'
 gainmapfilenameFull = gainmapfilename+'_'+dtstring+'.tif'
-im.save(gainmapfilenameFull, 'TIFF')
-gainmapfilename = 'calculatedGainMap_48p6keV'
+#im.save(gainmapfilenameFull, 'TIFF')
+gainmapfilename = 'gainMap'
 gainmapfilenameFull = f'{gainmapfilename}_filtered_{dtstring}.edf'
 gainmapfilenameFull2 = f'{gainmapfilename}_filtered_kpm_{dtstring}.edf'
 
@@ -393,7 +395,7 @@ filteredIm = np.where(nmap <= 0, 1, nmap)
 filteredIm = np.where(filteredIm >=2, -1, filteredIm)
 filteredIm2 = np.where(nmap > 1.5, -1, nmap)
 filteredIm2 = np.where(filteredIm2 == 0, -1, filteredIm2)
-filteredIm2 = np.where(filteredIm2 < 0.5, -1, filteredIm2)
+filteredIm2 = np.where(filteredIm2 < 0.7, -1, filteredIm2)
 edfimage = fabio.edfimage.EdfImage(data = filteredIm)
 edfimage2 = fabio.edfimage.EdfImage(data = filteredIm2)
 edfimage.save(gainmapfilenameFull)

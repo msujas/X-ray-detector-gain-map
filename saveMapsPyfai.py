@@ -14,7 +14,7 @@ def updatelist(ext):			# search for tif files in the main directory
 
 
 if __name__ == "__main__":
-    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\a311207_gainMapDec2023/') #input working directory
+    os.chdir(r'C:\Users\kenneth1a\Documents\beamlineData\august2024_gain/') #input working directory
     defaultDetector = pyFAI.detector_factory('pilatus2mcdte')
     cbfsubdir = 'Si'
     cwd = os.getcwd()				# get the current path
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         os.mkdir(path)
     pathmaps = path
     cbfs = updatelist(f'{cbfsubdir}/*.cbf')
-    ponifiles = updatelist('*.poni')
+    ponifiles = updatelist('*MD.poni')
     if cbfs:
         cbf = fabio.open(cbfs[0]).data
         shape = cbf.shape
