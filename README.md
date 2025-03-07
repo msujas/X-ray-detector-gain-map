@@ -1,3 +1,7 @@
+I haven't bothered to change the README much from J. Weng's original. There are some small changes that I've made to the repository: 1. I've set it up to make the detector maps (2theta, polarisation, solid angle maps) from pyFAI - input your poni directory into the saveMapsPyfai.py script, and maybe modify the 'ponifile = ...' line. 2. I've added in a solid angle correction option. 3. I've modified the main script to allow an arbitrary number of images. 4. I've added a 2theta limit masking script if you want to get rid of parts of the detector that don't have much overlap with other images (NB. on BM31 we try to measure in positions that have similar 2theta range). 5. I've copied the notebook script over to a .py script so it's a bit easier to run at once. It plots things (blocking the script) at various points so you can check if it's OK.
+
+Some complications are that I've made some initial parts of the script for finding the correct image files specific how files are organised on BM31, hopefully it's somewhat easy to modify to a different filing system (change the line with filenamescbf[c] = ...).
+
 # X ray detector gain map
 [![DOI](https://zenodo.org/badge/434980590.svg)](https://zenodo.org/badge/latestdoi/434980590)
 
